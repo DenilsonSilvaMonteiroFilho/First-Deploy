@@ -1,6 +1,6 @@
 services:
   angular-app:
-    image: ghcr.io/denilsonsilvamonteirofilho/minha-pagina:latest
+    image: ghcr.io/denilsonsilvamonteirofilho/first-deploy:latest
     container_name: thats-a-live
     ports:
       - "80:80"
