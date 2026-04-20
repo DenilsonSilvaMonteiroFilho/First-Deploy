@@ -5,6 +5,9 @@ on:
     branches:
       - master
 
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/first-deploy
+
 jobs:
   build-and-push:
     name: Build & Push Docker Image
@@ -13,6 +16,9 @@ jobs:
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
+
+      - name: Definir IMAGE_NAME em lowercase
+        run: echo "IMAGE_NAME=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/first-deploy" >> $GITHUB_ENV
 
       - name: Login no GitHub Container Registry
         uses: docker/login-action@v3
@@ -26,7 +32,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/first-deploy:latest
+          tags: ${{ env.IMAGE_NAME }}:latest
 
   deploy:
     name: Deploy no VPS
@@ -42,9 +48,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/thats-a-live
-
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
